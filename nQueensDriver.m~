@@ -1,23 +1,20 @@
 %SCRIPT FILE TO CALL GATOOLBOX FROM COMMAND WINDOW (TO SOLVE nQueensFitness)
 % AUTHOR: PHELAN VENDEVILLE
 
+numberOfQueens = 16;
+
+%options for the ga options. These indicate a custom data type
+options = gaoptimset('PopulationType', 'custom', 'PopInitRange');
+
 % Specify options for the GA toolbox
-
-myoptions=gaoptimset('PopInitRange',[-5;5],...
-                    'PopulationSize',10,... %try rerunning with a larger population
-                    'Generations',10,... %try a rerunning longer number of generations
-                    'StallGenLimit',inf,...
-                    'StallTimeLimit',inf',...
-                    'SelectionFcn',{@selectiontournament,4},... % TOURNEMENT SIZE PROVIDED
-                    'CrossoverFcn',@crossoversinglepoint);
+myoptions=gaoptimset(options, 'CreationFcn', @nQueensPermutationProducer,...
+                    'SelectionFcn',{@selectiontournament,3},... % Tournament size of 3 to pick best 1 of 3 as a parent
+                    'CrossoverFcn',@nQueensCrossover,...
+                    'MutationFcn', @nQueensMutate,...
+                    'PopulationSize',5,...
+                    'StallGenLimit',100,...
+                    'CrossoverFraction', .5,...
+                    'Generations',100);
                 
-% Run the GA on a (HOW MANY VARIABLE>
-[bestsolution,bestfitness]=ga(@rastriginsfcn,2,myoptions) %LEAVE SEMICOLON OFF TO SEE RESULTS
-
-% FOR FUN, LETS PLOT THE FUNCTION AND SEE WHERE THE BEST SOLUTION IS
-% (NOTE: THE FOLLOWING CODE ONLY WORKS FOR 2-VARIABLE FUNCTIONS)
-myezplot3d(@pcolor,@rastriginsfcn,-5,5); % pseudo-color plot over range <-5..5, -5..5>
-hold on % we don't want to overwrite the plot, we want to add to it
-plot3(bestsolution(1),bestsolution(2),bestfitness,'w*','markersize',10) % plot the best solution
-title(['x=',num2str(bestsolution(1)),', y=',num2str(bestsolution(2))]) % display solution values
-%hold off % next time we run this we'll redraw it
+% Run the GA on an 8 variable fitness function with the options you've set
+ga(@nQueensFitness, 8, myoptions)

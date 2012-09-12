@@ -1,9 +1,16 @@
-function offspring = nQueensCrossover ( parent1, parent2)
+function offspring = nQueensCrossover (parents, options, nvars, FitnessFcn, unused,thisPopulation)
 %nQueensCrossover, a function used to create a child from two parent
 %vectors
 %   Uses the "cut and crossfill" method of recombination to create one
 %   child permutation vector from two parents.
 % AUTHOR: PHELAN VENDEVILLE
+% 
+% parents ? Row vector of parents chosen by the selection function
+% options ? options structure
+% nvars ? Number of variables
+% FitnessFcn ? Fitness function
+% unused ? Placeholder not used
+% thisPopulation ? Matrix representing the current population. The number of rows of the matrix is Population size and the number of columns is Number of variables.
 
 % Cut and Crossfill:
 %   1. Select a random position (the crossover point) from the vector.
@@ -12,7 +19,10 @@ function offspring = nQueensCrossover ( parent1, parent2)
 %   4. Scan parent 2 from left to right and fill the second segment of
 %       the child with values from parent 2, skipping those that are already
 %       contained in it. 
-
+    
+    parent1 = thisPopulation{parents(1)}; %grab parents from cell array
+    parent2 = thisPopulation{parents(2)};
+    
     workingChild = NaN(1, length(parent1));
 
     rng shuffle;

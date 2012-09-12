@@ -23,10 +23,8 @@ function mutatedVector = nQueensMutate(parents, options, nvars, FitnessFcn, stat
     targetParent = thisPopulation{parents(1)}; % grab the parent from cell array
         
     %pick two indecies at random to swap
-    randPossibilities = randperm(length(targetParent));
-    randIndecies = randPossibilities(1:2); 
+    indecies = randperm(targetParent,2); 
 
-    targetParent(:,[randIndecies(1,1),randIndecies(1,2)]) = targetParent(:,[randIndecies(1,2),randIndecies(1,1)]);
     mutatedVector = targetParent;
 
 end

@@ -1,4 +1,4 @@
-function pop = nQueensPermutationProducer( NVARS,FitnessFcn,options )
+function pop = nQueensPermutationProducer( nvars,FitnessFcn,options )
 %nQueensPermutationProducer creates a permutation vector for use in n
 %queens problem
 %   Creates a population of vectors each containing a random permutation of numbers from 1 to
@@ -10,14 +10,13 @@ function pop = nQueensPermutationProducer( NVARS,FitnessFcn,options )
 %
 % AUTHOR: PHELAN VENDEVILLE
     
-    totalPopulationSize = sum(options.PopulationSize);
-    n = NVARS;
-    pop = cell(totalPopulationSize,1);
-    for i = 1:totalPopulationSize
+    totalPopSize = sum(options.PopulationSize);
+    n = nvars;
+    pop = cell(totalPopSize,1);
+    for i = 1:totalPopSize
         pop{i} = randperm(n);
     end
     
     %length = 8
     %genome = randperm(length)
 end
-
