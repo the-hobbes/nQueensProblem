@@ -12,11 +12,12 @@ function pop = nQueensPermutationProducer( nvars,FitnessFcn,options )
     
     totalPopSize = sum(options.PopulationSize);
     n = nvars;
-    pop = cell(totalPopSize,1);
+    pop = zeros(totalPopSize, n);
+    
+    j = 1;
+    i = 1:totalPopSize;
     for i = 1:totalPopSize
-        pop{i} = randperm(n);
+        pop(i, :) = randperm(n);
     end
     
-    %length = 8
-    %genome = randperm(length)
 end

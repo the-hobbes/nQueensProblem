@@ -13,15 +13,14 @@ function mutatedVector = nQueensMutate(parents, options, nvars, FitnessFcn, stat
 % state ? Structure containing information about the current generation. The State Structure describes the fields of state.
 % thisScore ? Vector of scores of the current population 
 % thisPopulation ? Matrix of individuals in the current population
-
-
-%QUESTION: why only one parent, and why a parent at all?
-
+    
+    %herp = thisPopulation(parents,:)
+    
     rng shuffle;
     
     %i = randi([1,2]);
-    targetParent = thisPopulation{parents(1)}; % grab the parent from cell array
-        
+    targetParent = thisPopulation(parents(1,1), :); % grab the parent from cell array
+    
     %pick two indecies at random to swap
     randPossibilities = randperm(length(targetParent));
     randIndecies = randPossibilities(1:2); 
