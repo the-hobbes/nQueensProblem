@@ -1,0 +1,16 @@
+%SCRIPT FILE TO CALL GATOOLBOX FROM COMMAND WINDOW (TO SOLVE nQueensFitness)
+% AUTHOR: PHELAN VENDEVILLE
+
+% Specify options for the GA toolbox
+
+myoptions=gaoptimset('CreationFcn', @nQueensPermutationProducer,...
+                    'SelectionFcn',{@selectiontournament,3},... % Tournament size of 3 to pick best 1 of 3 as a parent
+                    'CrossoverFcn',@nQueensCrossover,...
+                    'MutationFcn', @nQueensMutate,...
+                    'PopulationSize',10,...
+                    'StallGenLimit',100,...
+                    'Generations',100);
+numberOfQueens = 8;
+                
+% Run the GA on a (HOW MANY VARIABLE?) fitness function with the options
+ga(@nQueensFitness,numberOfQueens,myoptions) 
