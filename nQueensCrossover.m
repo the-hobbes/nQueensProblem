@@ -1,6 +1,8 @@
 function xoverKids = nQueensCrossover (parents, options, nvars, FitnessFcn, unused,thisPopulation)
 %nQueensCrossover, a function used to create a child from two parent
-%vectors
+% vectors.
+%
+%   Makes 1 child for every two parents (parents specified by indexes in "parents". These are then taken from "thisPopulation". 
 %   Uses the "cut and crossfill" method of recombination to create one
 %   child permutation vector from two parents.
 % AUTHOR: PHELAN VENDEVILLE
@@ -19,9 +21,17 @@ function xoverKids = nQueensCrossover (parents, options, nvars, FitnessFcn, unus
 %   4. Scan parent 2 from left to right and fill the second segment of
 %       the child with values from parent 2, skipping those that are already
 %       contained in it. 
-
+    
+    %global variables to save bookkeeping information
+    global Cchanges;
+    %global generation to get the current generation
+    global curGen; %this required making a change to gaunc.m on line 72 and 73
+    
     % How many children to produce?
     nKids = length(parents)/2;
+    
+    % space to store the differences in fitness (bookkeeping)
+    diffFitnesses = NaN(nKids, 1);
     
     % Allocate space for the kids
     xoverKids = zeros(nKids,nvars);
@@ -37,9 +47,14 @@ function xoverKids = nQueensCrossover (parents, options, nvars, FitnessFcn, unus
         parent2 = thisPopulation(parents(index),:);
         index = index + 1;
         
+        %find which parent is fitter
+        fit_1 = nQueensFitness(parent1);
+        fit_2 = nQueensFitness(parent2);
+        mostFitParent = min(fit_1, fit_2);
+        
         workingChild = NaN(1, length(parent1));
 
-        rng shuffle;
+        %rng shuffle;
         randPossibilities = randperm(length(parent1));
         randPos = randPossibilities(1,1); %pick the random position
 
@@ -57,8 +72,17 @@ function xoverKids = nQueensCrossover (parents, options, nvars, FitnessFcn, unus
             %parent2(indecies); %actual values that need to be inserted into workingChild
             workingChild(isnan(workingChild)) = parent2(indecies);
         end
-
+        
+        % find difference between the most fit parent and the child produced
+        diffFitness = mostFitParent - nQueensFitness(workingChild);
+        % add it to the diffFitnesses tracker
+        diffFitnesses(f, 1) = diffFitness;
+    
         xoverKids(f,:) = workingChild;
     end
     
+    %put the fitness changes in the global bookeeping mutation variable
+    for j=1:length(diffFitnesses)
+        Cchanges(j,curGen) = diffFitnesses(j,1);
+    end
 end

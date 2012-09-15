@@ -53,7 +53,5 @@ function scores = nQueensFitness( populationIn )
         scores(j,1) = fitness;
         j = j + 1;
     end
-    
-    scores;
-        
+            
 end
