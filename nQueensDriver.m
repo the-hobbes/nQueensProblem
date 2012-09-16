@@ -96,5 +96,14 @@ end
 nQueensPlotChanges('Mean Fitness Change Caused by Crossover', 'Generation', 'Mean Fitness Change (by crossover)',averagesOfCrossoverRuns)
 
 %%%scatter plot of all fitness changes (both bad and good, from all 10 runs lumped together) caused by mutation (y) vs the corresponding standard deviation of the population before the mutation (x)
+%get all of the initial stds (before mutation). These will be the x axis
+stdsBeforeMutation = NaN(1,10);
+for i = 1:length(master_stdPopFitness)
+	elementStd = master_stdPopFitness{1,i}(1,1); %first element of each cell is the initial std
+	stdsBeforeMutation(1,i) = elementStd;
+end
+
+
+
 
 %%%scatter plot of all fitness changes (both bad and good, from all 10 runs lumped together) caused by crossover (y) vs the corresponding standard deviation of the population before the crossover (x)
