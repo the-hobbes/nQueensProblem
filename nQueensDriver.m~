@@ -38,6 +38,10 @@ myoptions=gaoptimset(options, 'CreationFcn', @nQueensPermutationProducer,...
 global Mchanges;
 global Cchanges;
 
+%variables to hold final solutions and fitness
+bestIndividuals = cell(1,10);
+bestFitnesses = NaN(1,10);
+
 %{ 
    Run the GA on an 16 variable fitness function with the options you've set
    Perform this run 10 times, performing bookkeeping and updating master
@@ -47,7 +51,7 @@ for seed = 1:10
     rand('seed', seed);
     Mchanges = NaN(popsize/2, maxgens);%mutation changes
     Cchanges = NaN(popsize/2, maxgens);%crossover changes
-    ga(@nQueensFitness, numberOfQueens, myoptions);
+    [bestsolution,bestfitness] = ga(@nQueensFitness, numberOfQueens, myoptions);
     genstats = nQueensOutputFcn;
     
     %update master variables
@@ -55,42 +59,73 @@ for seed = 1:10
     master_Cchanges{1,seed} = Cchanges;
     master_meanPopFitness{1,seed} = genstats.AvgScore;
     master_stdPopFitness{1,seed} = genstats.StandardDev;
+    
+    %update the final solutions variables
+    bestIndividuals{1,seed} = bestsolution;
+    bestFitnesses(1,seed) = bestfitness;
 end
 
 %{ *** perform plotting *** }%
-%Plot of mean population fitness (y-axis) as a function of generations (x-axis), using different lines for the 10 different runs
-cc=hsv(12);
+%%%Plot of mean population fitness (y-axis) as a function of generations (x-axis), using different lines for the 10 different runs
+nQueensPlotChanges('N-Queens mean pop. fitness vs generations', 'Generation', 'Mean population fitness',master_meanPopFitness) 
+
+%%%plot of std of population fitness (y) vs generations (x), using different lines for the 10 different runs
+nQueensPlotChanges('N-Queens STD pop. fitness vs generations', 'Generation', 'Standard Deviation of population fitness',master_stdPopFitness)
+
+%%%plot of the mean fitness change caused by mutations(y-axis) as a function of generations (x-axis), using different lines for the 10 different runs
+%calculate the mean change in fitness for every generation a mutation occurred.
+averagesOfMutationRuns = cell(1,10);
+for index = 1:length(master_Mchanges) %for each of the 10 runs
+    element = master_Mchanges{1,index}; %grab the next cell
+    storeAverages = NaN(1,100); %make a structure to hold the averages
+    
+    for i = 1:length(element) %for each of the 100 columns (generations)
+        storeAverages(1,i) = mean(element(:,i)); %store the mean of each column
+    end
+    averagesOfMutationRuns{1, index} = storeAverages; %store all averages from that run
+end
+
+%plot these changes against the generation numbers
+nQueensPlotChanges('Mean Fitness Change Caused by Mutations', 'Generation', 'Mean Fitness Change (by mutations)',averagesOfMutationRuns)
+
+%%%plot of the mean fitness change caused by crossover(y) vs generations(x),using different lines for the 10 different runs
+averagesOfCrossoverRuns = cell(1,10);
+for index = 1:length(master_Cchanges) %for each of the 10 runs
+    element = master_Cchanges{1,index}; %grab the next cell
+    storeAverages = NaN(1,100); %make a structure to hold the averages
+    
+    for i = 1:length(element) %for each of the 100 columns (generations)
+        storeAverages(1,i) = mean(element(:,i)); %store the mean of each column
+    end
+    averagesOfCrossoverRuns{1, index} = storeAverages; %store all averages from that run
+end
+
+%plot these changes against the generation numbers
+nQueensPlotChanges('Mean Fitness Change Caused by Crossover', 'Generation', 'Mean Fitness Change (by crossover)',averagesOfCrossoverRuns)
+
+%%%scatter plot of all fitness changes (both bad and good, from all 10 runs lumped together) caused by mutation (y) vs the corresponding standard deviation of the population before the mutation (x)
+%get all of the initial stds (before mutation). These will be the x axis
+stdsBeforeMutation = NaN(1,10);
+for i = 1:length(master_stdPopFitness)
+	elementStd = master_stdPopFitness{1,i}(1,1); %first element of each cell is the initial std
+	stdsBeforeMutation(1,i) = elementStd;
+end
+
+nQueensPlotScatterChanges('Fitness Changes caused by mutation vs the Standard Deviation of Population Before Mutation', 'Standard Deviation of Population before Mutation', 'Fitness Changes caused by mutation', master_stdPopFitness, master_Mchanges);
+
+%%%scatter plot of all fitness changes (both bad and good, from all 10 runs lumped together) caused by crossover (y) vs the corresponding standard deviation of the population before the crossover (x)
+nQueensPlotScatterChanges('Fitness Changes caused by crossover vs the Standard Deviation of Population Before Mutation', 'Standard Deviation of Population before Mutation', 'Fitness Changes caused by mutation', master_stdPopFitness, master_Mchanges);
+
+hold off;
 figure;
-hold on;
-for i=1:10
-    plot( master_meanPopFitness{1,i},'color',cc(i,:),'LineWidth',1);
+for i = 1:length(master_Cchanges)
+    M = master_Cchanges{1,i};
+    S = master_stdPopFitness{1,i};
+    S = S(ones(50,1), :);
+    keep = ~isnan(M(:));
+    M = M(keep);
+    S = S(keep);
+    goodchanges = M > 0;
+    badchanges = ~goodchanges;
+    plot(S(goodchanges), M(goodchanges), 'b*'); hold on; plot(S(badchanges), M(badchanges), 'ro');
 end
-set(gca,'Fontsize',12);
-title('N-Queens mean pop. fitness vs generations')
-xlabel('Generation')
-ylabel('Mean population fitness')
-legend('Run 1', 'Run 2', 'Run 3', 'Run 4', 'Run 5', 'Run 6', 'Run 7', 'Run 8', 'Run 9', 'Run 10') 
-
-%plot of std of population fitness (y) vs generations (x), using different lines for the 10 different runs
-cc=hsv(12);
-figure; 
-hold on;
-for i=1:10
-    plot( master_stdPopFitness{1,i},'color',cc(i,:),'LineWidth',1);
-end
-set(gca,'Fontsize',12);
-title('N-Queens STD pop. fitness vs generations')
-xlabel('Generation')
-ylabel('Standard Deviation of population fitness')
-legend('Run 1', 'Run 2', 'Run 3', 'Run 4', 'Run 5', 'Run 6', 'Run 7', 'Run 8', 'Run 9', 'Run 10')
-
-%plot of the mean fitness change caused by mutations(y-axis) as a function of generations (x-axis), using different lines for the 10 different runs
-%calculate the mean change in fitness for every generation a mutation occurred. 
-
-
-
-%plot of the mean fitness change caused by crossover(y) vs generations(x),using different lines for the 10 different runs
-
-%scatter plot of all fitness changes (both bad and good, from all 10 runs lumped together) caused by mutation (y) vs the corresponding standard deviation of the population before the mutation (x)
-
-%scatter plot of all fitness changes (both bad and good, from all 10 runs lumped together) caused by crossover (y) vs the corresponding standard deviation of the population before the crossover (x)

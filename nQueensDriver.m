@@ -38,6 +38,10 @@ myoptions=gaoptimset(options, 'CreationFcn', @nQueensPermutationProducer,...
 global Mchanges;
 global Cchanges;
 
+%variables to hold final solutions and fitness
+bestIndividuals = cell(1,10);
+bestFitnesses = NaN(1,10);
+
 %{ 
    Run the GA on an 16 variable fitness function with the options you've set
    Perform this run 10 times, performing bookkeeping and updating master
@@ -47,7 +51,7 @@ for seed = 1:10
     rand('seed', seed);
     Mchanges = NaN(popsize/2, maxgens);%mutation changes
     Cchanges = NaN(popsize/2, maxgens);%crossover changes
-    ga(@nQueensFitness, numberOfQueens, myoptions);
+    [bestsolution,bestfitness] = ga(@nQueensFitness, numberOfQueens, myoptions);
     genstats = nQueensOutputFcn;
     
     %update master variables
@@ -55,6 +59,10 @@ for seed = 1:10
     master_Cchanges{1,seed} = Cchanges;
     master_meanPopFitness{1,seed} = genstats.AvgScore;
     master_stdPopFitness{1,seed} = genstats.StandardDev;
+    
+    %update the final solutions variables
+    bestIndividuals{1,seed} = bestsolution;
+    bestFitnesses(1,seed) = bestfitness;
 end
 
 %{ *** perform plotting *** }%
@@ -103,7 +111,7 @@ for i = 1:length(master_stdPopFitness)
 	stdsBeforeMutation(1,i) = elementStd;
 end
 
-
-
+nQueensPlotScatterChanges('Fitness Changes caused by mutation vs the Standard Deviation of Population Before Mutation', 'Standard Deviation of Population before Mutation', 'Fitness Changes caused by mutation', master_stdPopFitness, master_Mchanges);
 
 %%%scatter plot of all fitness changes (both bad and good, from all 10 runs lumped together) caused by crossover (y) vs the corresponding standard deviation of the population before the crossover (x)
+nQueensPlotScatterChanges('Fitness Changes caused by crossover vs the Standard Deviation of Population Before Crossover', 'Standard Deviation of Population before Crossover', 'Fitness Changes caused by crossover', master_stdPopFitness, master_Cchanges);
